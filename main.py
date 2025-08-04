@@ -1,36 +1,23 @@
-from loader import extract_from_pdf_folder
-from recursive_textsplitter import recursive_split
-from Astra_db import vector_database_creation
+from config.vector_store import get_vector_store
+from teams.Round_Robin_Team import get_team
+import asyncio
+from autogen_agentchat.ui import Console
+vector_store,client =  get_vector_store()
+team_1 = get_team()
 
+async def main():
+    try:
+        stream = team_1.run_stream(task = 'In the event of delay of the airlines, whilst on a Trip, at any airport specified in the Insured Person’s main trave')
+        await Console(stream = stream)
 
-# === Step 1: Load all PDFs ===
-pdf_folder = r"C:\Users\rudra\Desktop\hackathon\pdf"  # Change this path as needed
-all_docs = extract_from_pdf_folder(pdf_folder)
-print("\n📄 All PDFs loaded and content extracted")
-
-# === Step 2: Recursive Text Splitting ===
-pages = recursive_split(all_docs)
-print("\n✂️ Recursive splitting completed")
-
-print(pages[0])
-
-# === Step 3: Create vector store and embed documents ===
-vector_store = vector_database_creation()
-vector_store.add_documents(pages)
-print("\n📦 Pages embedded and added to vector database")
-
-# === Step 4: Create Retriever and RAG Chain ===
-retriever = vector_store.as_retriever(
-    search_type="mmr",
-    search_kwargs={'k': 10, 'fetch_k': 30}
-)
-
-
-# === Step 5: Take Query Input and Generate Answer ===
-query = input("\n❓ Enter your query: ")
-answer = retriever.invoke(query)
-
-print(answer)
-
+    except Exception as e:
+        print(f"Exception occured: {e}\n")
+        
+    finally:
+        await client.close()
+        
+    
+if (__name__ == '__main__'):
+    asyncio.run(main())
 
 
