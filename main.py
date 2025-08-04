@@ -14,7 +14,7 @@ async def main():
         print(f"Exception occured: {e}\n")
         
     finally:
-        await client.close()
+        client.close()
         
     
 if (__name__ == '__main__'):
